@@ -17,20 +17,20 @@ limitations under the License.
 package controllers
 
 import (
-  "context"
+	"context"
 
-  "k8s.io/apimachinery/pkg/runtime"
-  ctrl "sigs.k8s.io/controller-runtime"
-  "sigs.k8s.io/controller-runtime/pkg/client"
-  "sigs.k8s.io/controller-runtime/pkg/log"
+	"k8s.io/apimachinery/pkg/runtime"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
-  orderv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
+	orderv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
 )
 
 // RequestReconciler reconciles a Request object
 type RequestReconciler struct {
-  client.Client
-  Scheme *runtime.Scheme
+	client.Client
+	Scheme *runtime.Scheme
 }
 
 // +kubebuilder:rbac:groups=order.delivery.com,resources=requests,verbs=get;list;watch;create;update;patch;delete
@@ -47,16 +47,16 @@ type RequestReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *RequestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-  _ = log.FromContext(ctx)
+	_ = log.FromContext(ctx)
 
-  // your logic here
+	// your logic here
 
-  return ctrl.Result{}, nil
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *RequestReconciler) SetupWithManager(mgr ctrl.Manager) error {
-  return ctrl.NewControllerManagedBy(mgr).
-    For(&orderv1alpha1.Request{}).
-    Complete(r)
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&orderv1alpha1.Request{}).
+		Complete(r)
 }
