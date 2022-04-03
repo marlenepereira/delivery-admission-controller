@@ -1,0 +1,7 @@
+apiVersion: delivery.order.com/v1alpha1
+kind: Request
+metadata:
+  name: bad-request
+spec:
+  orderId: "124"
+  postcode: "33000"
