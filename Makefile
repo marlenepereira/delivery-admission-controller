@@ -106,3 +106,15 @@ GOBIN=$(PROJECT_DIR)/bin go get $(2) ;\
 rm -rf $$TMP_DIR ;\
 }
 endef
+
+CERT_MANAGER_VERSION = $(shell curl -sL https://github.com/cert-manager/cert-manager/releases | grep -o 'releases/download/v[0-9]*.[0-9]*.[0-9]*/' | sort -V | tail -1)
+local-cluster-setup:
+	kind create cluster --config=./kind/cluster.yaml
+	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./kind/cert-manager.yaml
+	kubectl apply -f ./kind/cert-manager.yaml
+
+local-cluster-tear-down:
+	@echo "\n♻️  Unistalling CertManager..."
+	kubectl delete -f ./kind/cert-manager.yaml
+	@echo "\n♻️  Deleting Kubernetes cluster..."
+	kind delete cluster --name=local
