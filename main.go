@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	orderv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
+	deliveryv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
 	"github.com/marlenepereira/delivery-admission-controller/controllers"
-	// +kubebuilder:scaffold:imports
+	//+kubebuilder:scaffold:imports
 )
 
 var (
@@ -44,8 +44,8 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
-	utilruntime.Must(orderv1alpha1.AddToScheme(scheme))
-	// +kubebuilder:scaffold:scheme
+	utilruntime.Must(deliveryv1alpha1.AddToScheme(scheme))
+	//+kubebuilder:scaffold:scheme
 }
 
 func main() {
@@ -71,7 +71,7 @@ func main() {
 		Port:                   9443,
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "092c29da.delivery.com",
+		LeaderElectionID:       "2876b92c.order.com",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -85,11 +85,11 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "Request")
 		os.Exit(1)
 	}
-	if err = (&orderv1alpha1.Request{}).SetupWebhookWithManager(mgr); err != nil {
+	if err = (&deliveryv1alpha1.Request{}).SetupWebhookWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create webhook", "webhook", "Request")
 		os.Exit(1)
 	}
-	// +kubebuilder:scaffold:builder
+	//+kubebuilder:scaffold:builder
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
 		setupLog.Error(err, "unable to set up health check")

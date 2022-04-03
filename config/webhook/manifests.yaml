@@ -13,12 +13,12 @@ webhooks:
     service:
       name: webhook-service
       namespace: system
-      path: /validate-order-delivery-com-v1alpha1-request
+      path: /validate-delivery-order-com-v1alpha1-request
   failurePolicy: Fail
   name: vrequest.kb.io
   rules:
   - apiGroups:
-    - order.delivery.com
+    - delivery.order.com
     apiVersions:
     - v1alpha1
     operations:

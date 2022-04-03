@@ -7,7 +7,7 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - order.delivery.com
+  - delivery.order.com
   resources:
   - requests
   verbs:
@@ -19,13 +19,13 @@ rules:
   - update
   - watch
 - apiGroups:
-  - order.delivery.com
+  - delivery.order.com
   resources:
   - requests/finalizers
   verbs:
   - update
 - apiGroups:
-  - order.delivery.com
+  - delivery.order.com
   resources:
   - requests/status
   verbs:

@@ -6,9 +6,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: requests.order.delivery.com
+  name: requests.delivery.order.com
 spec:
-  group: order.delivery.com
+  group: delivery.order.com
   names:
     kind: Request
     listKind: RequestList
@@ -36,8 +36,12 @@ spec:
           spec:
             description: RequestSpec defines the desired state of Request
             properties:
+              orderId:
+                description: OrderID is id of the order the delivery request corresponds
+                  to.
+                type: string
               postcode:
-                description: Postcode is the delivery order postcode.
+                description: Postcode is the postcode where to deliver an order.
                 type: string
             type: object
           status:

@@ -5,7 +5,7 @@ metadata:
   name: request-viewer-role
 rules:
 - apiGroups:
-  - order.delivery.com
+  - delivery.order.com
   resources:
   - requests
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - order.delivery.com
+  - delivery.order.com
   resources:
   - requests/status
   verbs:

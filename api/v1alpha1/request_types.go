@@ -26,9 +26,12 @@ import (
 // RequestSpec defines the desired state of Request
 type RequestSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Important: Run "make" to regenerate code after modi
 
-	// Postcode is the delivery order postcode.
+	// OrderID is id of the order the delivery request corresponds to.
+	OrderID string `json:"orderId,omitempty"`
+
+	// Postcode is the postcode where to deliver an order.
 	Postcode string `json:"postcode,omitempty"`
 }
 

@@ -1,4 +1,4 @@
-domain: delivery.com
+domain: order.com
 layout:
 - go.kubebuilder.io/v3
 projectName: delivery-admission-controller
@@ -8,8 +8,8 @@ resources:
     crdVersion: v1
     namespaced: true
   controller: true
-  domain: delivery.com
-  group: order
+  domain: order.com
+  group: delivery
   kind: Request
   path: github.com/marlenepereira/delivery-admission-controller/api/v1alpha1
   version: v1alpha1

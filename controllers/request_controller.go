@@ -24,7 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	orderv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
+	deliveryv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
 )
 
 // RequestReconciler reconciles a Request object
@@ -33,9 +33,9 @@ type RequestReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=order.delivery.com,resources=requests,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=order.delivery.com,resources=requests/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=order.delivery.com,resources=requests/finalizers,verbs=update
+//+kubebuilder:rbac:groups=delivery.order.com,resources=requests,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=delivery.order.com,resources=requests/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=delivery.order.com,resources=requests/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -57,6 +57,6 @@ func (r *RequestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 // SetupWithManager sets up the controller with the Manager.
 func (r *RequestReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&orderv1alpha1.Request{}).
+		For(&deliveryv1alpha1.Request{}).
 		Complete(r)
 }
