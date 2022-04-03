@@ -1,4 +1,4 @@
-module github.com/marlenepereira/simple-admission-controller
+module github.com/marlenepereira/delivery-admission-controller
 
 go 1.16
 
