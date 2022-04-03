@@ -79,11 +79,14 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default | kubectl apply -f -
+	mkdir -p manifests
+	$(KUSTOMIZE) build config/default > ./manifests/manifests.gen.yaml
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
 	$(KUSTOMIZE) build config/default | kubectl delete -f -
 
+apply: deploy push
+	kubectl apply -f ./manifests/manifests.gen.yaml
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
 controller-gen: ## Download controller-gen locally if necessary.
@@ -109,12 +112,18 @@ endef
 
 CERT_MANAGER_VERSION = $(shell curl -sL https://github.com/cert-manager/cert-manager/releases | grep -o 'releases/download/v[0-9]*.[0-9]*.[0-9]*/' | sort -V | tail -1)
 local-cluster-setup:
-	kind create cluster --config=./kind/cluster.yaml
-	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./kind/cert-manager.yaml
-	kubectl apply -f ./kind/cert-manager.yaml
+	@echo "\n♻️  Creating Kubernetes cluster 'local'..."
+	kind create cluster --config=./cluster/kind-cluster.yaml
+	@echo "\n♻️  Installing CertManager..."
+	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./cluster/cert-manager.yaml
+	kubectl apply -f ./cluster/cert-manager.yaml
 
 local-cluster-tear-down:
-	@echo "\n♻️  Unistalling CertManager..."
-	kubectl delete -f ./kind/cert-manager.yaml
+	@echo "\n♻️  Uninstalling CertManager..."
+	kubectl delete -f ./cluster/cert-manager.yaml
 	@echo "\n♻️  Deleting Kubernetes cluster..."
 	kind delete cluster --name=local
+
+push: docker-build
+	@echo "\n📦 Pushing admission-webhook image into Kind's Docker daemon..."
+	kind load docker-image ${IMG} --name local
