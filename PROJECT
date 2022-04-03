@@ -3,4 +3,14 @@ layout:
 - go.kubebuilder.io/v3
 projectName: delivery-admission-controller
 repo: github.com/marlenepereira/simple-admission-controller
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: delivery.com
+  group: order
+  kind: Request
+  path: github.com/marlenepereira/simple-admission-controller/api/v1alpha1
+  version: v1alpha1
 version: "3"

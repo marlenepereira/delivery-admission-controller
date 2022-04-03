@@ -1,0 +1,6 @@
+apiVersion: order.delivery.com/v1alpha1
+kind: Request
+metadata:
+  name: request-sample
+spec:
+  postcode: "3000"
