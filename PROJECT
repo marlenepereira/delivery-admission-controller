@@ -1,0 +1,6 @@
+domain: delivery.com
+layout:
+- go.kubebuilder.io/v3
+projectName: delivery-admission-controller
+repo: github.com/marlenepereira/simple-admission-controller
+version: "3"
