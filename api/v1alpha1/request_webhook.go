@@ -17,13 +17,13 @@ limitations under the License.
 package v1alpha1
 
 import (
-  "fmt"
-  "io/ioutil"
-  "k8s.io/apimachinery/pkg/runtime"
-  "net/http"
-  ctrl "sigs.k8s.io/controller-runtime"
-  logf "sigs.k8s.io/controller-runtime/pkg/log"
-  "sigs.k8s.io/controller-runtime/pkg/webhook"
+	"fmt"
+	"io/ioutil"
+	"k8s.io/apimachinery/pkg/runtime"
+	"net/http"
+	ctrl "sigs.k8s.io/controller-runtime"
+	logf "sigs.k8s.io/controller-runtime/pkg/log"
+	"sigs.k8s.io/controller-runtime/pkg/webhook"
 )
 
 const BASE_URL = "https://api.zippopotam.us/au"
@@ -32,9 +32,9 @@ const BASE_URL = "https://api.zippopotam.us/au"
 var requestlog = logf.Log.WithName("request-resource")
 
 func (r *Request) SetupWebhookWithManager(mgr ctrl.Manager) error {
-  return ctrl.NewWebhookManagedBy(mgr).
-    For(r).
-    Complete()
+	return ctrl.NewWebhookManagedBy(mgr).
+		For(r).
+		Complete()
 }
 
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
@@ -46,49 +46,49 @@ var _ webhook.Validator = &Request{}
 
 // ValidateCreate implements webhook.Validator so a webhook will be registered for the type
 func (r *Request) ValidateCreate() error {
-  requestlog.Info("validate create", "name", r.Name)
+	requestlog.Info("validate create", "name", r.Name)
 
-  postcode := r.Spec.Postcode
-  err := isValidateAUPostcode(postcode)
-  if err != nil {
-    return err
-  }
+	postcode := r.Spec.Postcode
+	err := isValidateAUPostcode(postcode)
+	if err != nil {
+		return err
+	}
 
-  return nil
+	return nil
 }
 
 // ValidateUpdate implements webhook.Validator so a webhook will be registered for the type
 func (r *Request) ValidateUpdate(old runtime.Object) error {
-  requestlog.Info("validate update", "name", r.Name)
+	requestlog.Info("validate update", "name", r.Name)
 
-  postcode := r.Spec.Postcode
-  err := isValidateAUPostcode(postcode)
-  if err != nil {
-    return err
-  }
-  return nil
+	postcode := r.Spec.Postcode
+	err := isValidateAUPostcode(postcode)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // ValidateDelete implements webhook.Validator so a webhook will be registered for the type
 func (r *Request) ValidateDelete() error {
-  requestlog.Info("validate delete", "name", r.Name)
+	requestlog.Info("validate delete", "name", r.Name)
 
-  // TODO(user): fill in your validation logic upon object deletion.
-  return nil
+	// TODO(user): fill in your validation logic upon object deletion.
+	return nil
 }
 
 func isValidateAUPostcode(code string) error {
-  url := fmt.Sprintf("%s/%s", BASE_URL, code)
-  resp, err := http.Get(url)
-  if err != nil || resp.StatusCode != 200 {
-    return fmt.Errorf("the postcode '%s' in the request is invalid", code)
-  }
-  defer resp.Body.Close()
-  body, err := ioutil.ReadAll(resp.Body)
-  if err != nil {
-    requestlog.Info("Couldn't read the response body")
-  }
+	url := fmt.Sprintf("%s/%s", BASE_URL, code)
+	resp, err := http.Get(url)
+	if err != nil || resp.StatusCode != 200 {
+		return fmt.Errorf("the postcode '%s' in the request is invalid", code)
+	}
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		requestlog.Info("Couldn't read the response body")
+	}
 
-  requestlog.Info("postcode response", "body", string(body))
-  return nil
+	requestlog.Info("postcode response", "body", string(body))
+	return nil
 }

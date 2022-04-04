@@ -17,20 +17,20 @@ limitations under the License.
 package controllers
 
 import (
-  "context"
+	"context"
 
-  "k8s.io/apimachinery/pkg/runtime"
-  ctrl "sigs.k8s.io/controller-runtime"
-  "sigs.k8s.io/controller-runtime/pkg/client"
-  "sigs.k8s.io/controller-runtime/pkg/log"
+	"k8s.io/apimachinery/pkg/runtime"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
-  deliveryv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
+	deliveryv1alpha1 "github.com/marlenepereira/delivery-admission-controller/api/v1alpha1"
 )
 
 // RequestReconciler reconciles a Request object
 type RequestReconciler struct {
-  client.Client
-  Scheme *runtime.Scheme
+	client.Client
+	Scheme *runtime.Scheme
 }
 
 // +kubebuilder:rbac:groups=delivery.order.com,resources=requests,verbs=get;list;watch;create;update;patch;delete
@@ -47,35 +47,35 @@ type RequestReconciler struct {
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.8.3/pkg/reconcile
 func (r *RequestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-  logger := log.FromContext(ctx).WithValues("delivery order request", req.NamespacedName)
+	logger := log.FromContext(ctx).WithValues("delivery order request", req.NamespacedName)
 
-  // Retrieve the deliver order request
-  var request deliveryv1alpha1.Request
-  if err := r.Get(ctx, req.NamespacedName, &request); err != nil {
-    logger.Error(err, "error retrieving request")
-    return ctrl.Result{}, client.IgnoreNotFound(err)
-  }
-  logger.WithValues("postcode", request.Spec.Postcode)
-  logger.Info("Reconciling request")
+	// Retrieve the deliver order request
+	var request deliveryv1alpha1.Request
+	if err := r.Get(ctx, req.NamespacedName, &request); err != nil {
+		logger.Error(err, "error retrieving request")
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+	logger.WithValues("postcode", request.Spec.Postcode)
+	logger.Info("Reconciling request")
 
-  if err := request.ValidateCreate(); err != nil {
-    return ctrl.Result{}, err
-  }
+	if err := request.ValidateCreate(); err != nil {
+		return ctrl.Result{}, err
+	}
 
-  request.Status.Status = "Accepted"
-  // Successful reconciliation, update the status of the resource
-  logger.Info("Updating the status of the request")
+	request.Status.Status = "Accepted"
+	// Successful reconciliation, update the status of the resource
+	logger.Info("Updating the status of the request")
 
-  if err := r.Status().Update(ctx, &request); err != nil {
-    return ctrl.Result{}, err
-  }
+	if err := r.Status().Update(ctx, &request); err != nil {
+		return ctrl.Result{}, err
+	}
 
-  return ctrl.Result{}, nil
+	return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
 func (r *RequestReconciler) SetupWithManager(mgr ctrl.Manager) error {
-  return ctrl.NewControllerManagedBy(mgr).
-    For(&deliveryv1alpha1.Request{}).
-    Complete(r)
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&deliveryv1alpha1.Request{}).
+		Complete(r)
 }
