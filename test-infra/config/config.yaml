@@ -93,9 +93,25 @@ data:
         always_run: true
         skip_report: false
         spec:
+          serviceAccountName: kube-dry-run
           containers:
-          - image: bitnami/kubectl:1.22.9
-            command: ["/bin/ls"]
+          - image: kube-dry-run:latest
+            imagePullPolicy: IfNotPresent
+            command: ["/usr/local/bin/kubectl"]
+            args:
+              - apply
+              - -f
+              - /etc/config/config.yaml
+              - --dry-run=server
+            volumeMounts:
+              - name: config
+                mountPath: /etc/config
+                readOnly: true
+          volumes:
+            - name: config
+              configMap:
+                name: config
+
 #
 #    periodics:
 #      - name: branchprotector
