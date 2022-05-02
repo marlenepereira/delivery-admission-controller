@@ -114,12 +114,12 @@ CERT_MANAGER_VERSION = $(shell curl -sL https://github.com/cert-manager/cert-man
 local-cluster-setup:
 	@echo "\n♻️  Creating Kubernetes cluster 'local'..."
 	kind create cluster --config=./test-infra/config/cluster/kind-cluster.yaml
-	@echo "\n♻️  Installing CertManager..."
-	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./test-infra/config/cluster/cert-manager.yaml
-	kubectl apply -f ./test-infra/config/cluster/cert-manager.yaml
 	@echo "\n♻️  Installing Nginx..."
 	curl -sL https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml > ./test-infra/config/cluster/nginx.yaml
 	kubectl apply -f ./test-infra/config/cluster/nginx.yaml
+	@echo "\n♻️  Installing CertManager..."
+	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./test-infra/config/cluster/cert-manager.yaml
+	kubectl apply -f ./test-infra/config/cluster/cert-manager.yaml
 
 local-cluster-tear-down: undeploy uninstall
 	@echo "\n♻️  Uninstalling Nginx..."

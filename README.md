@@ -20,7 +20,7 @@ make install
 
 # This command will build an new image of the admission controller and load it into the local cluster.
 # Then it will generate the manifests in ./manifests and apply it to the local cluster.
-make apply
+make setup-webhook
 
 # Run this command to uninstall the admission controller.
 make undeploy

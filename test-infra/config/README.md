@@ -8,6 +8,9 @@ Create a KinD cluster by running:
 make local-cluster-setup
 ```
 This command will create a KinD cluster with [port mapping for ingress][00] and deploy CertManager and Nginx.
+Make sure Nginx is running before proceeding.
+**Note**: that Nginx is configured (via node labels and tolerations) to run only on the control plane node. Sometimes the control plane doesn't
+have enough cpu to run the pods, so it might fail.
 
 # Setting up Prow as a GitHub APP
 Instructions in this section is based on the `kubernetes/test-infra` [getting_started_deploy.md][02] guide for Prow adapted for local KinD.
@@ -42,7 +45,7 @@ Once the Kubernetes secrets are created in the `./target` directory, run the fol
 ```shell
 make setup-prow
 ```
-The prow components are deployed in the `prow` namespace. Once pods are running, i.e. deck, you can access the Deck dashboard from `localhost`.
+The prow components are deployed in the `prow` namespace. Once pods are running, i.e. deck, you can access the Deck dashboard from [localhost](http://localhost/).
 You can look at the access logs by checking the nginx pods logs in the `ingress-nginx` namespace.
 
 ### Connecting GitHub webhook with Prow running in KinD

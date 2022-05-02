@@ -71,6 +71,9 @@ data:
     decorate_all_jobs: false
 
     branch-protection:
+      enforce_admins: true # rules apply to admins too!
+      include:
+        - "main"
       orgs:
         marlenepereira:
           repos:
@@ -81,7 +84,7 @@ data:
     presubmits:
       marlenepereira/delivery-admission-controller:
       - name: test-presubmit-admission
-        decorate: true
+        decorate: false
         always_run: true
         skip_report: false
         spec:
