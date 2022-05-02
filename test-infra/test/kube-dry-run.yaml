@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-dry-run
+spec:
+  serviceAccountName: kube-dry-run
+  containers:
+    - name: kube-dry-run
+      image: kube-dry-run:latest
+      imagePullPolicy: IfNotPresent
+      args:
+        - apply
+        - -f
+        - /etc/config/config.yaml
+        - --dry-run=server
+      command:
+        - /usr/local/bin/kubectl
+      volumeMounts:
+        - name: config
+          mountPath: /etc/config
+          readOnly: true
+  volumes:
+    - name: config
+      configMap:
+        name: config
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-dry-run
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: kube-dry-run
+rules:
+  - apiGroups: ["delivery.order.com"]
+    resources: ["requests"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: kube-dry-run
+subjects:
+  - kind: ServiceAccount
+    name: kube-dry-run
+roleRef:
+  kind: Role
+  name: kube-dry-run
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: default
+  name: config
+data:
+  config.yaml: |
+    apiVersion: delivery.order.com/v1alpha1
+    kind: Request
+    metadata:
+      name: bad-request
+    spec:
+      orderId: "124"
+      postcode: "33000"

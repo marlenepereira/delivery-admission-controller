@@ -1,0 +1,140 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: prow
+  name: config
+data:
+  config.yaml: |
+    prowjob_namespace: prow
+    pod_namespace: test-pods
+
+    in_repo_config:
+      enabled:
+        "*": true
+
+    deck:
+     spyglass:
+       lenses:
+       - lens:
+           name: metadata
+         required_files:
+         - started.json|finished.json
+       - lens:
+           config:
+           name: buildlog
+         required_files:
+         - build-log.txt
+       - lens:
+           name: junit
+         required_files:
+         - .*/junit.*\.xml
+       - lens:
+           name: podinfo
+         required_files:
+         - podinfo.json
+
+    plank:
+      job_url_prefix_config:
+        "*": https://prow.example.com
+      job_url_template: 'https://prow.example.com'
+      report_templates:
+        '*': >-
+            [Full PR test history](https://prow.example.com/pr-history?org={{.Spec.Refs.Org}}&repo={{.Spec.Refs.Repo}}&pr={{with index .Spec.Refs.Pulls 0}}{{.Number}}{{end}}).
+            [Your PR dashboard](https://prow.example.com/pr?query=is:pr+state:open+author:{{with
+            index .Spec.Refs.Pulls 0}}{{.Author}}{{end}}).
+      default_decoration_configs:
+        "*":
+          gcs_configuration:
+            bucket: s3://prow-logs
+            path_strategy: explicit
+          s3_credentials_secret: s3-credentials
+          utility_images:
+            clonerefs: gcr.io/k8s-prow/clonerefs:v20220422-710d89b07b
+            entrypoint: gcr.io/k8s-prow/entrypoint:v20220422-710d89b07b
+            initupload: gcr.io/k8s-prow/initupload:v20220422-710d89b07b
+            sidecar: gcr.io/k8s-prow/sidecar:v20220422-710d89b07b
+
+    tide:
+      target_url: https://prow.example.com/tide
+      queries:
+      - labels:
+        - lgtm
+        - approved
+        missingLabels:
+        - needs-rebase
+        - do-not-merge/hold
+        - do-not-merge/work-in-progress
+        - do-not-merge/invalid-owners-file
+        orgs:
+        - marlenepereira
+
+    decorate_all_jobs: false
+
+    branch-protection:
+      orgs:
+        marlenepereira:
+          repos:
+            delivery-admission-controller:
+              protect: true
+              required_status_checks:
+                contexts: ["test-presubmit-admission"]
+    presubmits:
+      marlenepereira/delivery-admission-controller:
+      - name: test-presubmit-admission
+        decorate: true
+        always_run: true
+        skip_report: false
+        spec:
+          containers:
+          - image: alpine
+            command: ["/bin/ls"]
+      - name: kube-dry-run
+        decorate: false
+        always_run: true
+        skip_report: false
+        spec:
+          containers:
+          - image: bitnami/kubectl:1.22.9
+            command: ["/bin/ls"]
+#
+#    periodics:
+#      - name: branchprotector
+#        cron: "*/5 * * * *"
+#        extra_refs:
+#          - org: marlenepereira
+#            repo: delivery-admission-controller
+#            base_ref: main
+#        decorate: false # decorate false to avoid failing because of the other containers
+#        max_concurrency: 1
+#        skip_report: true
+#        spec:
+#          containers:
+#            - image: gcr.io/k8s-prow/branchprotector:v20220414-949f7bddd3
+#              command:
+#                - branchprotector
+#              args:
+#                - --config-path=/etc/config/config.yaml
+#                - --confirm
+#                - --github-endpoint=https://api.github.com
+#                - --github-app-id=$(GITHUB_APP_ID)
+#                - --github-app-private-key-path=/etc/github/cert
+#              env:
+#                - name: GITHUB_APP_ID
+#                  valueFrom:
+#                    secretKeyRef:
+#                      name: github-token
+#                      key: appid
+#              volumeMounts:
+#                - name: github-token
+#                  mountPath: /etc/github
+#                  readOnly: true
+#                - name: config
+#                  mountPath: /etc/config
+#                  readOnly: true
+#          volumes:
+#            - name: github-token
+#              secret:
+#                secretName: github-token
+#            - name: config
+#              configMap:
+#                name: config

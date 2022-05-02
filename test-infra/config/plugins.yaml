@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: prow
+  name: plugins
+data:
+  plugins.yaml: |
+    plugins:
+      marlenepereira/delivery-admission-controller:
+        plugins:
+        - approve
+        - assign
+        - cat
+        - dog
+        - hold
+        - label
+        - lgtm
+        - trigger
+#        - blunderbuss
+#        - help
+#        - heart
+#        - verify-owners
+#        - wip
+#        - yuks

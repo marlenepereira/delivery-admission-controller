@@ -63,7 +63,7 @@ build: generate fmt vet ## Build manager binary.
 run: manifests generate fmt vet ## Run a controller from your host.
 	go run ./main.go
 
-docker-build: test ## Build docker image with the manager.
+docker-build: test-infra/test ## Build docker image with the manager.
 	docker build -t ${IMG} .
 
 docker-push: ## Push docker image with the manager.
@@ -83,9 +83,9 @@ deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in
 	$(KUSTOMIZE) build config/default > ./manifests/manifests.gen.yaml
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
-	$(KUSTOMIZE) build config/default | kubectl delete -f -
+	kubectl delete -f ./manifests/manifests.gen.yaml
 
-apply: deploy push
+setup-webhook: install deploy push
 	kubectl apply -f ./manifests/manifests.gen.yaml
 
 CONTROLLER_GEN = $(shell pwd)/bin/controller-gen
@@ -113,17 +113,52 @@ endef
 CERT_MANAGER_VERSION = $(shell curl -sL https://github.com/cert-manager/cert-manager/releases | grep -o 'releases/download/v[0-9]*.[0-9]*.[0-9]*/' | sort -V | tail -1)
 local-cluster-setup:
 	@echo "\n♻️  Creating Kubernetes cluster 'local'..."
-	kind create cluster --config=./cluster/kind-cluster.yaml
+	kind create cluster --config=./test-infra/config/cluster/kind-cluster.yaml
 	@echo "\n♻️  Installing CertManager..."
-	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./cluster/cert-manager.yaml
-	kubectl apply -f ./cluster/cert-manager.yaml
+	curl -sL https://github.com/cert-manager/cert-manager/${CERT_MANAGER_VERSION}/cert-manager.yaml > ./test-infra/config/cluster/cert-manager.yaml
+	kubectl apply -f ./test-infra/config/cluster/cert-manager.yaml
+	@echo "\n♻️  Installing Nginx..."
+	curl -sL https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml > ./test-infra/config/cluster/nginx.yaml
+	kubectl apply -f ./test-infra/config/cluster/nginx.yaml
 
-local-cluster-tear-down:
+local-cluster-tear-down: undeploy uninstall
+	@echo "\n♻️  Uninstalling Nginx..."
+	kubectl delete -f ./test-infra/config/cluster/nginx.yaml
 	@echo "\n♻️  Uninstalling CertManager..."
-	kubectl delete -f ./cluster/cert-manager.yaml
+	kubectl delete -f ./test-infra/config/cluster/cert-manager.yaml
 	@echo "\n♻️  Deleting Kubernetes cluster..."
 	kind delete cluster --name=local
 
 push: docker-build
 	@echo "\n📦 Pushing admission-webhook image into Kind's Docker daemon..."
 	kind load docker-image ${IMG} --name local
+
+target-dir:
+	mkdir -p target
+
+generate-secret: target-dir
+	@echo "\n♻️  Creating hmac secret..."
+	openssl rand -hex 20 > ./target/hmac-secret
+	kubectl create secret generic hmac-token --from-file=hmac=./target/hmac-secret -n prow --dry-run=client -o yaml > target/hmac-secret.yaml
+	cat ./target/hmac-secret
+
+setup-prow:
+	@echo "\n♻️  Installing ProwJob CRD..."
+	kubectl apply --server-side=true -f test-infra/config/prow/crds
+	@echo "\n♻️  Creating namespaces..."
+	kubectl apply --server-side=true -f test-infra/config/prow/namespace.yaml
+	@echo "\n♻️  Creating Secrets..."
+	kubectl apply -f target/hmac-secret.yaml,target/github-token.yaml
+	@echo "\n♻️  Creating Configs..."
+	kubectl apply -f test-infra/config/config.yaml,test-infra/config/plugins.yaml
+	@echo "\n♻️  Installing prow core components..."
+	kubectl apply -f test-infra/config/prow
+
+
+uninstall-prow:
+	@echo "\n♻️  Uninstalling prow components..."
+	kubectl delete -f test-infra/config/prow
+	@echo "\n♻️  deleting Secrets..."
+	kubectl delete -f target/hmac-secret.yaml,target/secrets.yaml
+	@echo "\n♻️  Uninstalling ProwJob CRD..."
+	kubectl delete --server-side=true -f test-infra/config/prow/crds
