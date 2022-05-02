@@ -1,5 +1,6 @@
 # Test Infra Config
-The `/cluster` directory contains YAML configuration to create a KinD cluster and the `/prow` contains the Kubernetes resource definition for Prow running on KinD.
+The `/cluster` directory contains YAML configuration to create a KinD cluster and `/prow` contains the Kubernetes resource definition for Prow running on KinD.
+The Prow Kubernetes resources were taken from the [config/prow/cluster/starter/starter-s3.yaml][07] in the [kubernetes/test-infra][08] repo and adapted to be used in KinD.
 
 # Setting up the cluster
 Create a KinD cluster by running:
@@ -74,3 +75,5 @@ At this point, the Hook component running in the local KinD cluster should be re
 [04]: https://docs.github.com/en/rest/branches/branch-protection#update-branch-protection
 [05]: https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy.md#github-app
 [06]: https://github.com/kubernetes/test-infra/blob/master/prow/getting_started_deploy.md#install-prow-for-a-github-organization-or-repo
+[07]: https://github.com/kubernetes/test-infra/blob/master/config/prow/cluster/starter/starter-s3.yaml
+[08]: https://github.com/kubernetes/test-infra/
