@@ -1,7 +1,7 @@
 # Delivery Admission Controller
 Simple Kubernetes admission controller using [Kubebuilder][01].
 
-## Install it locally
+## Run in locally
 Assuming you have [kubectl][00] already installed.
 ```shell
 # Install kind if you haven't already.
